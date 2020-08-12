@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(airsim_tutorial_pkgs)
 
+set(mavros_msgs_DIR "/opt/ros/kinetic/share/mavros_msgs/cmake") 
+set(geographic_msgs_DIR "/opt/ros/kinetic/share/geographic_msgs/cmake")
+
+set(uuid_msgs_DIR "/opt/ros/kinetic/share/uuid_msgs/cmake")
 # todo eigen3 in AirLib already
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge

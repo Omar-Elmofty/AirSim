@@ -1,4 +1,5 @@
 #include "pd_position_controller_simple.h"
+#include <iostream>
 
 bool PIDParams::load_from_rosparams(const ros::NodeHandle &nh)
 {
@@ -58,16 +59,16 @@ void PIDPositionController::initialize_ros()
     nh_private_.getParam("update_control_every_n_sec", update_control_every_n_sec);
 
     // ROS publishers
-    airsim_vel_cmd_world_frame_pub_ = nh_private_.advertise<airsim_ros_pkgs::VelCmd>("/vel_cmd_world_frame", 1);
+    airsim_vel_cmd_world_frame_pub_ = nh_private_.advertise<airsim_ros_pkgs::VelCmd>("/airsim_node/drone/vel_cmd_world_frame", 1);
  
     // ROS subscribers
-    airsim_odom_sub_ = nh_.subscribe("/airsim_node/odom_local_ned", 50, &PIDPositionController::airsim_odom_cb, this);
-    home_geopoint_sub_ = nh_.subscribe("/airsim_node/home_geo_point", 50, &PIDPositionController::home_geopoint_cb, this);
+    airsim_odom_sub_ = nh_.subscribe("/airsim_node/drone/odom_local_ned", 50, &PIDPositionController::airsim_odom_cb, this);
+    home_geopoint_sub_ = nh_.subscribe("/airsim_node/origin_geo_point", 50, &PIDPositionController::home_geopoint_cb, this);
     // todo publish this under global nodehandle / "airsim node" and hide it from user
-    local_position_goal_srvr_ = nh_.advertiseService("/airsim_node/local_position_goal", &PIDPositionController::local_position_goal_srv_cb, this);
-    local_position_goal_override_srvr_ = nh_.advertiseService("/airsim_node/local_position_goal/override", &PIDPositionController::local_position_goal_srv_override_cb, this);
-    gps_goal_srvr_ = nh_.advertiseService("/airsim_node/gps_goal", &PIDPositionController::gps_goal_srv_cb, this);
-    gps_goal_override_srvr_ = nh_.advertiseService("/airsim_node/gps_goal/override", &PIDPositionController::gps_goal_srv_override_cb, this);
+    local_position_goal_srvr_ = nh_.advertiseService("/airsim_node/drone/local_position_goal", &PIDPositionController::local_position_goal_srv_cb, this);
+    local_position_goal_override_srvr_ = nh_.advertiseService("/airsim_node/drone/local_position_goal/override", &PIDPositionController::local_position_goal_srv_override_cb, this);
+    gps_goal_srvr_ = nh_.advertiseService("/airsim_node/drone/gps_goal", &PIDPositionController::gps_goal_srv_cb, this);
+    gps_goal_override_srvr_ = nh_.advertiseService("/airsim_node/drone/gps_goal/override", &PIDPositionController::gps_goal_srv_override_cb, this);
 
     // ROS timers
     update_control_cmd_timer_ = nh_private_.createTimer(ros::Duration(update_control_every_n_sec), &PIDPositionController::update_control_cmd_timer_cb, this);
@@ -95,7 +96,7 @@ void PIDPositionController::check_reached_goal()
     double diff_yaw = math_common::angular_dist(target_position_.yaw, curr_position_.yaw);
 
     // todo save this in degrees somewhere to avoid repeated conversion
-    if (diff_xyz < params_.reached_thresh_xyz && diff_yaw < math_common::deg2rad(params_.reached_yaw_degrees))
+    if (diff_xyz < params_.reached_thresh_xyz && abs(diff_yaw) < math_common::deg2rad(params_.reached_yaw_degrees))
         reached_goal_ = true; 
 }
 
@@ -127,10 +128,6 @@ bool PIDPositionController::local_position_goal_srv_cb(airsim_ros_pkgs::SetLocal
         reset_errors(); // todo
         return true;
     }
-
-    // Already have goal, and have reached it
-    ROS_INFO_STREAM("[PIDPositionController] Already have goal and have reached it");
-    return false;
 }
 
 bool PIDPositionController::local_position_goal_srv_override_cb(airsim_ros_pkgs::SetLocalPosition::Request& request, airsim_ros_pkgs::SetLocalPosition::Response& response)
@@ -210,10 +207,6 @@ bool PIDPositionController::gps_goal_srv_cb(airsim_ros_pkgs::SetGPSPosition::Req
         reset_errors(); // todo
         return true;
     }
-
-    // Already have goal, this shouldn't happen
-    ROS_INFO_STREAM("[PIDPositionController] Goal already received, ignoring!");
-    return false;
 }
 
 // todo do relative altitude, or add an option for the same?
@@ -283,7 +276,7 @@ void PIDPositionController::update_control_cmd_timer_cb(const ros::TimerEvent& e
         }
         else
         {
-            ROS_INFO_STREAM("[PIDPositionController] Moving to goal.");
+            //ROS_INFO_STREAM("[PIDPositionController] Moving to goal.");
         }
     }
 
@@ -339,11 +332,11 @@ void PIDPositionController::enforce_dynamic_constraints()
         vel_cmd_.twist.linear.z = (vel_cmd_.twist.linear.z / std::fabs(vel_cmd_.twist.linear.z)) * constraints_.max_vel_vert_abs; 
     }
     // todo yaw limits
-    if (std::fabs(vel_cmd_.twist.linear.z) > constraints_.max_yaw_rate_degree)
+    if (std::fabs(vel_cmd_.twist.angular.z) > constraints_.max_yaw_rate_degree)
     {
         // todo just add a sgn funciton in common utils? return double to be safe. 
         // template <typename T> double sgn(T val) { return (T(0) < val) - (val < T(0)); }
-        vel_cmd_.twist.linear.z = (vel_cmd_.twist.linear.z / std::fabs(vel_cmd_.twist.linear.z)) * constraints_.max_yaw_rate_degree;
+        vel_cmd_.twist.angular.z = (vel_cmd_.twist.angular.z / std::fabs(vel_cmd_.twist.angular.z)) * constraints_.max_yaw_rate_degree;
     }
 
 }

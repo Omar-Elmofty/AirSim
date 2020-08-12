@@ -1,10 +1,9 @@
 <launch>
 <!-- Vehicle limits (meters/second) -->
-    <param name="max_vel_vert_abs" type="double" value="10.0" />
-    <param name="max_vel_vert_abs" type="double" value="2.0" />
-    <!-- <param name="max_vel_horz_abs" type="double" value="0.5" /> -->
-    <!-- <param name="max_vel_horz_abs" type="double" value="0.5" /> -->
-    <param name="max_yaw_rate_degree" type="double" value="1.0" />
+    <param name="max_vel_vert_abs" type="double" value="3.0" />
+    <param name="max_vel_horz_abs" type="double" value="3.0" />
+    <!-- <param name="max_vel_horz_abs" type="double" value="50.0" /> -->
+    <param name="max_yaw_rate_degree" type="double" value="10.0" />
 
 <!-- Gimbal limits (degrees) -->
     <param name="gimbal_front_center_max_pitch" type="double" value="40.0" />
