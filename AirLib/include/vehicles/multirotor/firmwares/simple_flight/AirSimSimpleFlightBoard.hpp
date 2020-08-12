@@ -67,7 +67,7 @@ public:
 
     virtual float getAvgMotorOutput() const override
 	{
-		return ((getMotorControlSignal(0) + getMotorControlSignal(1) + getMotorControlSignal(2) + getMotorControlSignal(3)) / 4);
+		return ((getMotorControlSignal(0) + getMotorControlSignal(1) + getMotorControlSignal(2) + getMotorControlSignal(3) +  getMotorControlSignal(4) +  getMotorControlSignal(5)) / 6);
 	}
 
     virtual bool isRcConnected() const override

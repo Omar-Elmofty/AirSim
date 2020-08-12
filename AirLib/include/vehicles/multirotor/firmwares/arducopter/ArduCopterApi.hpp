@@ -217,6 +217,15 @@ protected:
         Utils::log("Not Implemented: commandRollPitchYawrateThrottle", Utils::kLogLevelInfo);
     }
 
+    virtual void commandRollPitchYawrateZrate(float roll, float pitch, float yaw_rate, float z_rate) override
+    {
+        unused(roll);
+        unused(pitch);
+        unused(yaw_rate);
+        unused(z_rate);
+        Utils::log("Not Implemented: commandRollPitchYawrateZrate", Utils::kLogLevelInfo);
+    }
+
     virtual void commandRollPitchYawZ(float roll, float pitch, float yaw, float z) override
     {
         unused(roll);
@@ -243,6 +252,7 @@ protected:
         unused(z);
         Utils::log("Not Implemented: commandRollPitchYawrateZ", Utils::kLogLevelInfo);
     }
+    
 
     virtual void commandAngleRatesZ(float roll_rate, float pitch_rate, float yaw_rate, float z) override
     {
@@ -449,7 +459,7 @@ private:
             recv_ret = udpSocket_->recv(&pkt, sizeof(pkt), 100);
         }
 
-        for (auto i = 0; i < kArduCopterRotorControlCount; ++i) {
+        for (auto i = 0; i < RotorControlCount && i < kArduCopterRotorControlCount; ++i) {
             rotor_controls_[i] = pkt.pwm[i];
         }
 
@@ -476,7 +486,10 @@ private:
     RCData last_rcData_;
     bool is_rc_connected_;
 
-    float rotor_controls_[kArduCopterRotorControlCount];
+    // TODO: Increase to 6 or 8 for hexa or larger frames, 11 was used in SoloAPI
+    static const int RotorControlCount = 4;
+
+    float rotor_controls_[RotorControlCount];
 };
 
 }} //namespace

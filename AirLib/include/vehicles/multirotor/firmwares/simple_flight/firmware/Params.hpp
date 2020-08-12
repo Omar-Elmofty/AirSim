@@ -8,14 +8,14 @@ struct Params {
 public:
     static float min_armed_throttle()
     {
-        static float val = 0.1f;
+        static float val = 0.0f;
         return val;
     }
 
     //this should match up with target board
     //simulation board should respect possible values
     struct Motor {
-        uint16_t motor_count = 4;
+        uint16_t motor_count = 6;
         float min_motor_output = 0;
         float max_motor_output = 1;
         //if min_armed_output too low then noise in pitch/roll can destabilize quad copter when throttle is zero
@@ -50,7 +50,7 @@ public:
 
     struct AngleRatePid {
         //max_xxx_rate > 5 would introduce wobble/oscillations
-        const float kMaxLimit = 2.5f;
+        const float kMaxLimit = 5.24f;
         const float kP = 0.25f;
         const float kI = 0.0f;
         const float kD = 0.0f;
@@ -66,9 +66,9 @@ public:
 
     struct AngleLevelPid {
         const float pi = 3.14159265359f; //180-degrees
-        const float kP = 2.5f;
+        const float kP = 2.5f; //2.5
         const float kI = 0.0f;
-        const float kD = 0.0f;
+        const float kD = 0.2f;
         
         //max_pitch/roll_angle > 5.5 would produce verticle thrust that is not enough to keep vehicle in air at extremities of controls
         Axis4r max_limit = Axis4r(pi / 5.5f, pi / 5.5f, pi, 1.0f); //roll, pitch, yaw - in radians/sec
@@ -93,7 +93,7 @@ public:
 
     struct VelocityPid {
         const float kMinThrottle = std::min(1.0f, Params::min_armed_throttle() * 3.0f);
-        const float kMaxLimit = 6.0f; // m/s
+        const float kMaxLimit = 20.0f; // m/s
         const float kP = 0.2f;
         const float kI = 2.0f;
         const float kD = 0.0f;

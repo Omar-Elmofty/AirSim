@@ -39,7 +39,7 @@ public:
 
 private: //variables
     //Unreal components
-    static constexpr size_t rotor_count = 4;
+    static constexpr size_t rotor_count = 6;
     UPROPERTY() APIPCamera* camera_front_left_;
     UPROPERTY() APIPCamera* camera_front_right_;
     UPROPERTY() APIPCamera* camera_front_center_;
