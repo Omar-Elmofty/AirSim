@@ -343,32 +343,6 @@ class VehicleClient:
         """
         return self.client.call('simSetObjectPose', object_name, pose, teleport)
 
-    def simGetObjectScale(self, object_name):
-        """
-        Gets scale of an object in the world
-
-        Args:
-            object_name (str): Object to get the scale of
-
-        Returns:
-            airsim.Vector3r: Scale
-        """
-        scale = self.client.call('simGetObjectScale', object_name)
-        return Vector3r.from_msgpack(scale)
-
-    def simSetObjectScale(self, object_name, scale_vector):
-        """
-        Sets scale of an object in the world
-
-        Args:
-            object_name (str): Object to set the scale of
-            scale_vector (airsim.Vector3r): Desired scale of object
-
-        Returns:
-            bool: True if scale change was successful
-        """
-        return self.client.call('simSetObjectScale', object_name, scale_vector)
-
     def simListSceneObjects(self, name_regex = '.*'):
         """
         Lists the objects present in the environment
@@ -382,31 +356,6 @@ class VehicleClient:
             list[str]: List containing all the names
         """
         return self.client.call('simListSceneObjects', name_regex)
-
-    def simSpawnObject(self, object_name, asset_name, pose, scale, physics_enabled=False):
-        """Spawned selected object in the world
-        
-        Args:
-            object_name (str): Desired name of new object
-            asset_name (str): Name of asset(mesh) in the project database
-            pose (airsim.Pose): Desired pose of object
-            scale (airsim.Vector3r): Desired scale of object
-        
-        Returns:
-            str: Name of spawned object, in case it had to be modified
-        """
-        return self.client.call('simSpawnObject', object_name, asset_name, pose, scale, physics_enabled)
-
-    def simDestroyObject(self, object_name):
-        """Removes selected object from the world
-        
-        Args:
-            object_name (str): Name of object to be removed
-        
-        Returns:
-            bool: True if object is queued up for removal
-        """
-        return self.client.call('simDestroyObject', object_name)
 
     def simSetSegmentationObjectID(self, mesh_name, object_id, is_name_regex = False):
         """
@@ -726,30 +675,6 @@ class VehicleClient:
         """
         return self.client.call('waitOnLastTask', timeout_sec)
 
-    # Recording APIs
-    def startRecording(self):
-        """
-        Start Recording
-
-        Recording will be done according to the settings
-        """
-        self.client.call('startRecording')
-
-    def stopRecording(self):
-        """
-        Stop Recording
-        """
-        self.client.call('stopRecording')
-
-    def isRecording(self):
-        """
-        Whether Recording is running or not
-
-        Returns:
-            bool: True if Recording, else False
-        """
-        return self.client.call('isRecording')
-
 # -----------------------------------  Multirotor APIs ---------------------------------------------
 class MultirotorClient(VehicleClient, object):
     def __init__(self, ip = "", port = 41451, timeout_value = 3600):
@@ -985,6 +910,41 @@ class MultirotorClient(VehicleClient, object):
             msgpackrpc.future.Future: future. call .join() to wait for method to finish. Example: client.METHOD().join()
         """
         return self.client.call_async('moveByRollPitchYawrateThrottle', roll, -pitch, -yaw_rate, throttle, duration, vehicle_name)
+
+    def moveByRollPitchYawrateZrateAsync(self, roll, pitch, yaw_rate, z_rate, duration, vehicle_name = ''):
+        """
+        - Desired throttle is between 0.0 to 1.0
+        - Roll angle, pitch angle, and yaw rate set points are given in **radians**, in the body frame.
+        - The body frame follows the Front Left Up (FLU) convention, and right-handedness.
+
+        - Frame Convention:
+            - X axis is along the **Front** direction of the quadrotor.
+
+            | Clockwise rotation about this axis defines a positive **roll** angle.
+            | Hence, rolling with a positive angle is equivalent to translating in the **right** direction, w.r.t. our FLU body frame.
+
+            - Y axis is along the **Left** direction of the quadrotor.
+
+            | Clockwise rotation about this axis defines a positive **pitch** angle.
+            | Hence, pitching with a positive angle is equivalent to translating in the **front** direction, w.r.t. our FLU body frame.
+
+            - Z axis is along the **Up** direction.
+
+            | Clockwise rotation about this axis defines a positive **yaw** angle.
+            | Hence, yawing with a positive angle is equivalent to rotated towards the **left** direction wrt our FLU body frame. Or in an anticlockwise fashion in the body XY / FL plane.
+
+        Args:
+            roll (float): Desired roll angle, in radians.
+            pitch (float): Desired pitch angle, in radians.
+            yaw_rate (float): Desired yaw rate, in radian per second.
+            throttle (float): Desired throttle (between 0.0 to 1.0)
+            duration (float): Desired amount of time (seconds), to send this command for
+            vehicle_name (str, optional): Name of the multirotor to send this command to
+
+        Returns:
+            msgpackrpc.future.Future: future. call .join() to wait for method to finish. Example: client.METHOD().join()
+        """
+        return self.client.call_async('moveByRollPitchYawrateZrate', roll, -pitch, -yaw_rate, z_rate, duration, vehicle_name)
 
     def moveByRollPitchYawrateZAsync(self, roll, pitch, yaw_rate, z, duration, vehicle_name = ''):
         """
