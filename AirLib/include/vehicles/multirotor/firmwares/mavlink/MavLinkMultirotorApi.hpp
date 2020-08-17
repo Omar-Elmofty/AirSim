@@ -528,9 +528,9 @@ protected: //methods
     }
     virtual void commandRollPitchYawrateZrate(float roll, float pitch, float yaw_rate, float throttle) override
     {
-	//TODO: Not correctly implemented needs to be fixed
+	//TODO: Function is incomplete
         checkValidVehicle();
-        mav_vehicle_->moveByAttitude(roll, pitch, 0, 0, 0, yaw_rate, throttle);
+        //mav_vehicle_->moveByAttitude(roll, pitch, 0, 0, 0, yaw_rate, throttle);
     }
     virtual void commandAngleRatesZ(float roll_rate, float pitch_rate, float yaw_rate, float z) override
     {
