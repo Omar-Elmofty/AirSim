@@ -23,10 +23,10 @@ public:
         
         for (int motor_index = 0; motor_index < kMotorCount; ++motor_index) {
             motor_outputs[motor_index] =
-                controls.throttle()* mixerQuadX[motor_index].throttle
-                + controls.pitch() * mixerQuadX[motor_index].pitch
-                + controls.roll() * mixerQuadX[motor_index].roll
-                + controls.yaw() * mixerQuadX[motor_index].yaw
+                controls.throttle()* mixerHexX[motor_index].throttle
+                + controls.pitch() * mixerHexX[motor_index].pitch
+                + controls.roll() * mixerHexX[motor_index].roll
+                + controls.yaw() * mixerHexX[motor_index].yaw
                 ;
         }
 
@@ -76,7 +76,7 @@ private:
             */
 
     //only thing that this matrix does is change the sign
-    const motorMixer_t mixerQuadX[6] = { //QuadX config
+    const motorMixer_t mixerHexX[6] = { //QuadX config
         { 1.0f, -1.0f, 0.0f, -1.0f },          // FRONT_R
         { 1.0f, 1.0f, 0.0f, 1.0f },          // REAR_L
         { 1.0f, 1.0f, 1.0f, -1.0f },          // FRONT_L
